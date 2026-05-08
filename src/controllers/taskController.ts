@@ -150,3 +150,20 @@ export const getStats = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Error fetching stats', error });
   }
 };
+
+export const deleteTask = async (req: AuthRequest, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.user!;
+
+    if (role !== 'ADMIN') {
+      return res.status(403).json({ message: 'Only admins can delete tasks' });
+    }
+
+    await prisma.task.delete({ where: { id } });
+
+    res.json({ message: 'Task deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting task', error });
+  }
+};
