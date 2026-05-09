@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware';
 import prisma from '../config/db';
 import { addEscalationJob } from '../queue/taskQueue';
+import { addReportJob } from '../queue/reportQueue';
 import { AppError } from '../middleware/errorMiddleware';
 
 export const createTask = async (req: AuthRequest, res: Response) => {
@@ -165,5 +166,17 @@ export const deleteTask = async (req: AuthRequest, res: Response) => {
     res.json({ message: 'Task deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting task', error });
+  }
+};
+
+export const generateReport = async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) throw new AppError('Unauthorized', 401);
+    
+    await addReportJob(userId);
+    res.json({ message: 'Report generation started in the background.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error starting report generation', error });
   }
 };
