@@ -53,3 +53,12 @@ export const login = async (req: Request, res: Response) => {
 
   res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
 };
+
+export const getUsers = async (req: Request, res: Response) => {
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true, email: true, role: true, created_at: true },
+    orderBy: { created_at: 'desc' }
+  });
+  res.json(users);
+};
+
